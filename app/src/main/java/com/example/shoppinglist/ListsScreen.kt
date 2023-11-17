@@ -131,6 +131,7 @@ fun ListsScreen(viewModel: ProductViewModel) {
                             intent.apply { putExtra("amount", product.amount) }
                             intent.apply { putExtra("id", product.id) }
                             intent.apply { putExtra("status", product.status) }
+                            intent.apply { putExtra("cost", product.cost) }
                             context.startActivity(intent)
                         }
                     ) {
