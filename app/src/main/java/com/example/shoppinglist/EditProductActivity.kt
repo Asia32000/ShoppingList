@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.shoppinglist.ui.theme.ShoppingListTheme
 
 class EditProductActivity : ComponentActivity() {
@@ -75,7 +76,13 @@ fun EditProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> U
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Spacer(modifier = Modifier.requiredHeight(32.dp))
+        Text(
+            modifier = Modifier
+                .padding(16.dp, top = 30.dp),
+            text = "Item",
+            color = Color.Gray,
+            fontSize = 12.sp
+        )
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -92,7 +99,13 @@ fun EditProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> U
                         }
                 )
             })
-        Spacer(modifier = Modifier.requiredHeight(32.dp))
+        Text(
+            modifier = Modifier
+                .padding(16.dp, top = 30.dp),
+            text = "Amount",
+            color = Color.Gray,
+            fontSize = 12.sp
+        )
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -108,13 +121,18 @@ fun EditProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> U
                         }
                 )
             })
-
-        Spacer(modifier = Modifier.requiredHeight(32.dp))
+        Text(
+            modifier = Modifier
+                .padding(16.dp, top = 30.dp),
+            text = "Cost",
+            color = Color.Gray,
+            fontSize = 12.sp
+        )
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 16.dp, end = 16.dp),
-            value = cost ?: "Cost",
+            value = cost ?: "",
             onValueChange = { cost = it },
             trailingIcon = {
                 Icon(Icons.Default.Clear,

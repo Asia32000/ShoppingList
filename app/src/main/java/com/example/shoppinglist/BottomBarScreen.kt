@@ -14,7 +14,7 @@ sealed class BottomBarScreen(
 ) {
     object Lists : BottomBarScreen(
         route = "lists",
-        title = "Lists",
+        title = "List",
         icon = Icons.Default.List
     )
 
