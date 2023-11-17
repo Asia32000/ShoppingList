@@ -47,6 +47,7 @@ fun ListsScreen(viewModel: ProductViewModel) {
     val store = UserStore(context)
     val savedListName = store.getListName.collectAsState(initial = "")
     val savedColor = store.getColorName.collectAsState(initial = "")
+    val savedFontSize = store.getFontSize.collectAsState(initial = "")
 
     Column {
         Box(
@@ -57,7 +58,7 @@ fun ListsScreen(viewModel: ProductViewModel) {
                 modifier = Modifier
                     .align(Alignment.Center),
                 fontWeight = FontWeight.Bold,
-                fontSize = 24.sp
+                fontSize = titleFontSize(savedFontSize.value).sp
             )
             IconButton(
                 onClick = {
@@ -102,18 +103,20 @@ fun ListsScreen(viewModel: ProductViewModel) {
                     Column {
                         Text(
                             text = product.name,
-                            fontSize = 18.sp,
+                            fontSize = textFontSize(savedFontSize.value).sp,
                             fontWeight = FontWeight.Medium
                         )
                         Row {
                             Text(
                                 text = "Amount: ${product.amount}",
+                                fontSize = detailsFontSize(savedFontSize.value).sp,
                                 color = Color.Gray
                             )
                             if (product.cost?.isNotEmpty() == true) {
                                 Spacer(modifier = Modifier.requiredWidth(16.dp))
                                 Text(
                                     text = "Cost: ${product.cost}",
+                                    fontSize = detailsFontSize(savedFontSize.value).sp,
                                     color = Color.Gray
                                 )
                             }
@@ -159,4 +162,31 @@ fun buttonColor(name: String): Color {
         "Magenta" -> return Color.Magenta.copy(alpha = 0.6f)
     }
     return Color.Blue.copy(alpha = 0.3f)
+}
+
+fun titleFontSize(name: String): Int {
+    when(name) {
+        "Small" -> return 18
+        "Default" -> return 24
+        "Large" -> return 30
+    }
+    return 24
+}
+
+fun textFontSize(name: String): Int {
+    when(name) {
+        "Small" -> return 16
+        "Default" -> return 18
+        "Large" -> return 22
+    }
+    return 24
+}
+
+fun detailsFontSize(name: String): Int {
+    when(name) {
+        "Small" -> return 14
+        "Default" -> return 16
+        "Large" -> return 20
+    }
+    return 24
 }

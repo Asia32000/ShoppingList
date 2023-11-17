@@ -13,6 +13,7 @@ class UserStore(private val context: Context) {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("listName")
         private val LIST_NAME_KEY = stringPreferencesKey("listName")
         private val COLOR_NAME_KEY = stringPreferencesKey("colorName")
+        private val FONT_SIZE_KEY = stringPreferencesKey("fontSize")
     }
 
     val getListName: Flow<String> = context.dataStore.data.map { preferences ->
@@ -32,6 +33,16 @@ class UserStore(private val context: Context) {
     suspend fun saveColorName(name: String) {
         context.dataStore.edit { preferences ->
             preferences[COLOR_NAME_KEY] = name
+        }
+    }
+
+    val getFontSize: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[FONT_SIZE_KEY] ?: "Default"
+    }
+
+    suspend fun saveFontSize(sizeName: String) {
+        context.dataStore.edit { preferences ->
+            preferences[FONT_SIZE_KEY] = sizeName
         }
     }
 }

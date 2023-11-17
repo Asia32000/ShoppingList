@@ -62,6 +62,7 @@ fun AddProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> Un
     val context = LocalContext.current
     val store = UserStore(context)
     val savedColor = store.getColorName.collectAsState(initial = "")
+    val savedFontSize = store.getFontSize.collectAsState(initial = "")
 
     Column(
         modifier = Modifier
@@ -73,7 +74,7 @@ fun AddProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> Un
                 .padding(16.dp, top = 30.dp),
             text = "Item",
             color = Color.Gray,
-            fontSize = 12.sp
+            fontSize = infoTextFontSize(savedFontSize.value).sp
         )
         OutlinedTextField(
             modifier = Modifier
@@ -97,7 +98,7 @@ fun AddProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> Un
                 .padding(16.dp, top = 30.dp),
             text = "Amount",
             color = Color.Gray,
-            fontSize = 12.sp
+            fontSize = infoTextFontSize(savedFontSize.value).sp
         )
         OutlinedTextField(
             modifier = Modifier
@@ -120,7 +121,7 @@ fun AddProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> Un
                 .padding(16.dp, top = 30.dp),
             text = "Cost",
             color = Color.Gray,
-            fontSize = 12.sp
+            fontSize = infoTextFontSize(savedFontSize.value).sp
         )
         OutlinedTextField(
             modifier = Modifier
@@ -157,7 +158,10 @@ fun AddProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> Un
             )
         )
         {
-            Text(text = "Add Item")
+            Text(
+                text = "Add Item",
+                fontSize = buttonFontSize(savedFontSize.value).sp
+            )
         }
     }
 }

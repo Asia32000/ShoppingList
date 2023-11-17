@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -51,11 +52,17 @@ import kotlinx.coroutines.launch
 fun SettingsScreen() {
     val context = LocalContext.current
     val store = UserStore(context)
+
     val savedListName = store.getListName.collectAsState(initial = "")
     var listName by remember { mutableStateOf(savedListName.value) }
+
+    val options = listOf("Blue", "Red", "Green", "Magenta")
     val savedColorName = store.getColorName.collectAsState(initial = "")
     var selectedColorName by remember { mutableStateOf(savedColorName.value) }
-    val options = listOf("Blue", "Red", "Green", "Magenta")
+
+    val fontSizeOptions = listOf("Small", "Default", "Large")
+    val savedFontSize = store.getFontSize.collectAsState(initial = "")
+    var selectedFontSize by remember { mutableStateOf(savedFontSize.value) }
 
 
     Box(
@@ -68,7 +75,7 @@ fun SettingsScreen() {
                     .padding(16.dp, top = 30.dp),
                 text = "Change shopping list name",
                 color = Color.Gray,
-                fontSize = 12.sp
+                fontSize = infoTextFontSize(savedFontSize.value).sp
             )
             OutlinedTextField(
                 modifier = Modifier
@@ -93,7 +100,8 @@ fun SettingsScreen() {
                                 }
                             }
                     )
-                }
+                },
+                textStyle = TextStyle(fontSize = textFontSize(savedFontSize.value).sp)
             )
 
             Spacer(modifier = Modifier.requiredHeight(32.dp))
@@ -101,7 +109,7 @@ fun SettingsScreen() {
             Text(
                 modifier = Modifier
                     .padding(start=16.dp, end=16.dp),
-                fontSize = 12.sp,
+                fontSize = infoTextFontSize(savedFontSize.value).sp,
                 text = "Choose buttons color",
                 color = Color.Gray
             )
@@ -111,11 +119,33 @@ fun SettingsScreen() {
                 SegmentedControl(
                     items = options,
                     defaultSelectedItemIndex = it,
+                    fontSize = buttonFontSize(savedFontSize.value)
                 ) {
                     selectedColorName = getColorName(it)
                     CoroutineScope(Dispatchers.IO).launch {
                         store.saveColorName(selectedColorName)
-                        Log.d("tag", "$selectedColorName")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.requiredHeight(32.dp))
+            Text(
+                modifier = Modifier
+                    .padding(start=16.dp, end=16.dp),
+                fontSize = infoTextFontSize(savedFontSize.value).sp,
+                text = "Choose font size",
+                color = Color.Gray
+            )
+            Spacer(modifier = Modifier.requiredWidth(16.dp))
+            getFontSizeIndex(savedFontSize.value)?.let { it ->
+                SegmentedControl(
+                    items = fontSizeOptions,
+                    defaultSelectedItemIndex = it,
+                    fontSize = buttonFontSize(savedFontSize.value)
+                ) {
+                    selectedFontSize = getFontSizeName(it)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        store.saveFontSize(selectedFontSize)
                     }
                 }
             }
@@ -130,6 +160,7 @@ fun SegmentedControl(
     useFixedWidth: Boolean = false,
     itemWidth: Dp = 120.dp,
     cornerRadius: Int = 10,
+    fontSize: Int,
     @ColorRes color: Int = R.color.teal_700,
     onItemSelection: (selectedItemIndex: Int) -> Unit
 ) {
@@ -232,6 +263,7 @@ fun SegmentedControl(
                     } else {
                         colorResource(id = color).copy(alpha = 0.9f)
                     },
+                    fontSize = fontSize.sp
                 )
             }
         }
@@ -254,6 +286,24 @@ fun getColorIndex(item: String): Int? {
         "Red" -> return 1
         "Green" -> return 2
         "Magenta" -> return 3
+    }
+    return null
+}
+
+fun getFontSizeName(item: Int): String {
+    when(item) {
+        0 -> return "Small"
+        1 -> return "Default"
+        2 -> return "Large"
+    }
+    return ""
+}
+
+fun getFontSizeIndex(item: String): Int? {
+    when(item) {
+        "Small" -> return 0
+        "Default" -> return 1
+        "Large" -> return 2
     }
     return null
 }

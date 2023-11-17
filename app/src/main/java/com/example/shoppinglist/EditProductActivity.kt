@@ -70,6 +70,7 @@ fun EditProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> U
     val context = LocalContext.current
     val store = UserStore(context)
     val savedColor = store.getColorName.collectAsState(initial = "")
+    val savedFontSize = store.getFontSize.collectAsState(initial = "")
 
     Column(
         modifier = Modifier
@@ -81,7 +82,7 @@ fun EditProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> U
                 .padding(16.dp, top = 30.dp),
             text = "Item",
             color = Color.Gray,
-            fontSize = 12.sp
+            fontSize = infoTextFontSize(savedFontSize.value).sp
         )
         OutlinedTextField(
             modifier = Modifier
@@ -104,7 +105,7 @@ fun EditProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> U
                 .padding(16.dp, top = 30.dp),
             text = "Amount",
             color = Color.Gray,
-            fontSize = 12.sp
+            fontSize = infoTextFontSize(savedFontSize.value).sp
         )
         OutlinedTextField(
             modifier = Modifier
@@ -126,7 +127,7 @@ fun EditProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> U
                 .padding(16.dp, top = 30.dp),
             text = "Cost",
             color = Color.Gray,
-            fontSize = 12.sp
+            fontSize = infoTextFontSize(savedFontSize.value).sp
         )
         OutlinedTextField(
             modifier = Modifier
@@ -167,7 +168,28 @@ fun EditProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> U
             )
         )
         {
-            Text(text = "Save Changes")
+            Text(
+                text = "Save Changes",
+                fontSize = buttonFontSize(savedFontSize.value).sp
+            )
         }
     }
+}
+
+fun infoTextFontSize(name: String): Int {
+    when(name) {
+        "Small" -> return 10
+        "Default" -> return 12
+        "Large" -> return 14
+    }
+    return 24
+}
+
+fun buttonFontSize(name: String): Int {
+    when(name) {
+        "Small" -> return 14
+        "Default" -> return 16
+        "Large" -> return 18
+    }
+    return 24
 }
