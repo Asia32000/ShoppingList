@@ -84,7 +84,7 @@ fun ListsScreen(viewModel: ProductViewModel) {
                 .fillMaxWidth()
         ) {
             items(products) { product ->
-                var checkBoxState by remember { mutableStateOf(product.status) }
+                var checkBoxState by remember(product.id) { mutableStateOf(product.status) }
                 Row(
                     modifier = Modifier
                         .padding(8.dp)
