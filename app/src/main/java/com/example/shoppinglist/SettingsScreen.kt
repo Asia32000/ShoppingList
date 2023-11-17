@@ -119,7 +119,8 @@ fun SettingsScreen() {
                 SegmentedControl(
                     items = options,
                     defaultSelectedItemIndex = it,
-                    fontSize = buttonFontSize(savedFontSize.value)
+                    fontSize = buttonFontSize(savedFontSize.value),
+                    color = buttonColor(savedColorName.value)
                 ) {
                     selectedColorName = getColorName(it)
                     CoroutineScope(Dispatchers.IO).launch {
@@ -141,7 +142,8 @@ fun SettingsScreen() {
                 SegmentedControl(
                     items = fontSizeOptions,
                     defaultSelectedItemIndex = it,
-                    fontSize = buttonFontSize(savedFontSize.value)
+                    fontSize = buttonFontSize(savedFontSize.value),
+                    color = buttonColor(savedColorName.value)
                 ) {
                     selectedFontSize = getFontSizeName(it)
                     CoroutineScope(Dispatchers.IO).launch {
@@ -161,7 +163,7 @@ fun SegmentedControl(
     itemWidth: Dp = 120.dp,
     cornerRadius: Int = 10,
     fontSize: Int,
-    @ColorRes color: Int = R.color.teal_700,
+    color: Color,
     onItemSelection: (selectedItemIndex: Int) -> Unit
 ) {
     val selectedIndex = remember { mutableStateOf(defaultSelectedItemIndex) }
@@ -234,9 +236,9 @@ fun SegmentedControl(
                 },
                 border = BorderStroke(
                     1.dp, if (selectedIndex.value == index) {
-                        colorResource(id = color)
+                        color
                     } else {
-                        colorResource(id = color).copy(alpha = 0.75f)
+                        color
                     }
                 ),
                 colors = if (selectedIndex.value == index) {
@@ -244,9 +246,7 @@ fun SegmentedControl(
                      * selected colors
                      */
                     ButtonDefaults.outlinedButtonColors(
-                        containerColor = colorResource(
-                            id = color
-                        )
+                        containerColor = color
                     )
                 } else {
                     /**
@@ -261,7 +261,7 @@ fun SegmentedControl(
                     color = if (selectedIndex.value == index) {
                         Color.White
                     } else {
-                        colorResource(id = color).copy(alpha = 0.9f)
+                        color
                     },
                     fontSize = fontSize.sp
                 )

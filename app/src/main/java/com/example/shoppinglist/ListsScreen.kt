@@ -158,7 +158,7 @@ fun buttonColor(name: String): Color {
     when (name) {
         "Blue" -> return Color.Blue.copy(alpha = 0.3f)
         "Red" -> return Color.Red.copy(alpha = 0.3f)
-        "Green" -> return Color.Green.copy(alpha = 0.3f)
+        "Green" -> return Color.Green.copy(alpha = 0.9f, blue = 0.4f, red = 0.2f, green = 0.8f)
         "Magenta" -> return Color.Magenta.copy(alpha = 0.6f)
     }
     return Color.Blue.copy(alpha = 0.3f)
