@@ -1,6 +1,7 @@
 package com.example.shoppinglist
 
 import UserStore
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -149,6 +150,14 @@ fun AddProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> Un
                 if (nameText.isNotEmpty() && amount.isNotEmpty()) {
                     val product = Product(name = nameText, amount = amount, status = false, cost = cost)
                     viewModel.insertProduct(product)
+                    // send broadcast
+                    Intent().also { intent ->
+                        intent.action = "com.example.ShoppingList"
+                        intent.putExtra("name", product.name)
+                        intent.putExtra("amount", product.amount)
+                        intent.putExtra("cost", product.cost)
+                        context.sendBroadcast(intent)
+                    }
                     goToPreviousActivity()
                 }
             },
