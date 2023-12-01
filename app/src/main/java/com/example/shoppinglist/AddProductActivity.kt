@@ -153,9 +153,11 @@ fun AddProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> Un
                     // send broadcast
                     Intent().also { intent ->
                         intent.action = "com.example.ShoppingList"
+                        intent.putExtra("id", product.id)
                         intent.putExtra("name", product.name)
                         intent.putExtra("amount", product.amount)
                         intent.putExtra("cost", product.cost)
+                        intent.putExtra("status", product.status)
                         context.sendBroadcast(intent)
                     }
                     goToPreviousActivity()

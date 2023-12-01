@@ -5,8 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Product(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val id: Int = (0..1000000).random(),
     var name: String,
     var status: Boolean,
     var amount: String,
