@@ -171,7 +171,7 @@ fun AddProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> Un
                         context.sendBroadcast(intent)
                     }
 
-                    val product2 = Product(name = nameText, amount = amount, status = false, cost = cost)
+                    val product2 = Product2(name = nameText, amount = amount, status = false, cost = cost)
                     myRef.child(product2.id.toString()).setValue(product2)
                         .addOnSuccessListener {
                             Toast.makeText(
