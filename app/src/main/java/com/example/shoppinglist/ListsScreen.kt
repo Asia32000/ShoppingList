@@ -1,8 +1,8 @@
 package com.example.shoppinglist
 
 import UserStore
+import android.app.Application
 import android.content.Intent
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,14 +41,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.Firebase
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.database
 
 @Composable
-fun ListsScreen(viewModel: ProductViewModel) {
+fun ListsScreen(viewModel: ProductViewModel, app: Application) {
     val context = LocalContext.current
     val store = UserStore(context)
     val savedListName = store.getListName.collectAsState(initial = "")
@@ -56,29 +51,7 @@ fun ListsScreen(viewModel: ProductViewModel) {
     val savedFontSize = store.getFontSize.collectAsState(initial = "")
 
     val products = remember { mutableStateListOf<Product2>() }
-
-    val database = Firebase.database(url = "https://shoppinglist-7fc7a-default-rtdb.europe-west1.firebasedatabase.app/")
-    val myRef = database.getReference("products")
-
-    myRef.addListenerForSingleValueEvent(object : ValueEventListener {
-        override fun onCancelled(snapshotError: DatabaseError) {
-            Toast.makeText(
-                context,
-                "Getting data wasn't successful",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        override fun onDataChange(snapshot: DataSnapshot) {
-            products.clear()
-            val children = snapshot!!.children
-            children.forEach {
-                it.getValue(Product2::class.java)?.let {
-                        it1 -> products.add(it1)
-                }
-            }
-        }
-    })
+    val viewModel2 = Product2ViewModel(app, products)
 
     Column {
         Box(
@@ -125,7 +98,7 @@ fun ListsScreen(viewModel: ProductViewModel) {
                         onCheckedChange = {
                             checkBoxState = it
                             product.status = it
-                            myRef.child(product.id.toString()).child("status").setValue(checkBoxState)
+                            viewModel2.myRef.child(product.id.toString()).child("status").setValue(checkBoxState)
                         },
                         colors = CheckboxDefaults.colors(
                             checkedColor = buttonColor(savedColor.value)
@@ -173,7 +146,7 @@ fun ListsScreen(viewModel: ProductViewModel) {
                     }
                     IconButton(
                         onClick = {
-                            myRef.child(product.id.toString()).removeValue()
+                            viewModel2.myRef.child(product.id.toString()).removeValue()
                             products.remove(product)
                         },
                     ) {

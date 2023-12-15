@@ -1,5 +1,6 @@
 package com.example.shoppinglist
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.background
@@ -32,13 +33,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
 @Composable
-fun BottomNavGraph(navController: NavHostController, viewModel: ProductViewModel) {
+fun BottomNavGraph(navController: NavHostController, viewModel: ProductViewModel, app: Application) {
     NavHost(
         navController = navController,
         startDestination = BottomBarScreen.Lists.route
     ) {
         composable(route = BottomBarScreen.Lists.route) {
-            ListsScreen(viewModel)
+            ListsScreen(viewModel, app)
         }
         composable(route = BottomBarScreen.Settings.route) {
             SettingsScreen()
