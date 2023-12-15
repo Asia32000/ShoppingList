@@ -98,7 +98,7 @@ fun ListsScreen(viewModel: ProductViewModel, app: Application) {
                         onCheckedChange = {
                             checkBoxState = it
                             product.status = it
-                            viewModel2.myRef.child(product.id.toString()).child("status").setValue(checkBoxState)
+                            viewModel2.updateCheckbox(it, product)
                         },
                         colors = CheckboxDefaults.colors(
                             checkedColor = buttonColor(savedColor.value)
@@ -146,8 +146,7 @@ fun ListsScreen(viewModel: ProductViewModel, app: Application) {
                     }
                     IconButton(
                         onClick = {
-                            viewModel2.myRef.child(product.id.toString()).removeValue()
-                            products.remove(product)
+                            viewModel2.remove(product)
                         },
                     ) {
                         Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")

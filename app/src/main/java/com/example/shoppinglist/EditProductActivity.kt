@@ -35,6 +35,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shoppinglist.ui.theme.ShoppingListTheme
+import com.google.firebase.Firebase
+import com.google.firebase.database.database
 
 class EditProductActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +73,9 @@ fun EditProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> U
     val store = UserStore(context)
     val savedColor = store.getColorName.collectAsState(initial = "")
     val savedFontSize = store.getFontSize.collectAsState(initial = "")
+
+    val database = Firebase.database(url = "https://shoppinglist-7fc7a-default-rtdb.europe-west1.firebasedatabase.app/")
+    val myRef = database.getReference("products")
 
     Column(
         modifier = Modifier
@@ -153,11 +158,11 @@ fun EditProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> U
                 .padding(start = 96.dp, end=96.dp),
             onClick = {
                 if (nameText.isNotEmpty() && amount.isNotEmpty()) {
-                    val oldProduct = products.first { it.id == id }
-                    viewModel.deleteProduct(oldProduct)
 
-                    val newProduct = Product(name = nameText, amount = amount, status = status, id = id, cost = cost)
-                    viewModel.insertProduct(newProduct)
+                    myRef.child(id.toString()).child("status").setValue(status)
+                    myRef.child(id.toString()).child("name").setValue(nameText)
+                    myRef.child(id.toString()).child("amount").setValue(amount)
+                    myRef.child(id.toString()).child("cost").setValue(cost)
 
                     goToPreviousActivity()
                 }

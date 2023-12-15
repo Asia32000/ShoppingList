@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 class Product2ViewModel(val app: Application, val products2: SnapshotStateList<Product2>) : AndroidViewModel(app) {
 
     private val database = Firebase.database(url = "https://shoppinglist-7fc7a-default-rtdb.europe-west1.firebasedatabase.app/")
-    val myRef = database.getReference("products")
+    private val myRef = database.getReference("products")
     init{
         myRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(snapshotError: DatabaseError) {
@@ -75,27 +75,22 @@ class Product2ViewModel(val app: Application, val products2: SnapshotStateList<P
             override fun onChildRemoved(dataSnapshot: DataSnapshot) {
                 Log.d(ContentValues.TAG, "onChildRemoved:" + dataSnapshot.key!!)
 
-                // A comment has changed, use the key to determine if we are displaying this
-                // comment and if so remove it.
+                // A product has changed, use the key to determine if we are displaying this
+                // product and if so remove it.
                 val deletedProduct = dataSnapshot.getValue<Product2>()
                 println("deleted: $deletedProduct")
-//                if (deletedProduct != null) {
-//                    val oldProduct = products2.first { it.id == deletedProduct.id }
-//                    if (oldProduct != null) {
-//                        products2.remove(oldProduct)
-//                    }
-//                }
+                if (deletedProduct!=null) {
+                    if (products2.contains(deletedProduct)) {
+                        products2.remove(deletedProduct)
+                    }
+                }
             }
 
             override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
                 Log.d(ContentValues.TAG, "onChildMoved:" + dataSnapshot.key!!)
 
-                // A comment has changed position, use the key to determine if we are
-                // displaying this comment and if so move it.
                 val movedProduct = dataSnapshot.getValue<Product2>()
                 val productKey = dataSnapshot.key
-
-                // ...
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -108,5 +103,14 @@ class Product2ViewModel(val app: Application, val products2: SnapshotStateList<P
             }
         }
         myRef.addChildEventListener(childEventListener)
+    }
+
+    fun remove(product: Product2) {
+        myRef.child(product.id.toString()).removeValue()
+        products2.remove(product)
+    }
+
+    fun updateCheckbox(value: Boolean, product: Product2) {
+        myRef.child(product.id.toString()).child("status").setValue(value)
     }
 }
