@@ -3,6 +3,7 @@ package com.example.shoppinglist
 import UserStore
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.clickable
@@ -35,7 +36,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.PreferencesProto.PreferenceMapOrBuilder
 import com.example.shoppinglist.ui.theme.ShoppingListTheme
+import com.google.firebase.Firebase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.database
 
 class AddProductActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +71,9 @@ fun AddProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> Un
     val store = UserStore(context)
     val savedColor = store.getColorName.collectAsState(initial = "")
     val savedFontSize = store.getFontSize.collectAsState(initial = "")
+
+    val database = Firebase.database(url = "https://shoppinglist-7fc7a-default-rtdb.europe-west1.firebasedatabase.app/")
+    val myRef = database.getReference("products")
 
     Column(
         modifier = Modifier
@@ -160,6 +170,23 @@ fun AddProductScreen(viewModel: ProductViewModel, goToPreviousActivity: () -> Un
                         intent.putExtra("status", product.status)
                         context.sendBroadcast(intent)
                     }
+
+                    val product2 = Product(name = nameText, amount = amount, status = false, cost = cost)
+                    myRef.child(product2.id.toString()).setValue(product2)
+                        .addOnSuccessListener {
+                            Toast.makeText(
+                                context,
+                                "Data added to Firebase Database",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }.addOnFailureListener {
+                            Toast.makeText(
+                                context,
+                                "Fail to add data",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
                     goToPreviousActivity()
                 }
             },

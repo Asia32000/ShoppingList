@@ -2,6 +2,7 @@ package com.example.shoppinglist
 
 import UserStore
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,15 +41,44 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.Firebase
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.database
 
 @Composable
 fun ListsScreen(viewModel: ProductViewModel) {
     val context = LocalContext.current
-    val products by viewModel.products.collectAsState(emptyList())
     val store = UserStore(context)
     val savedListName = store.getListName.collectAsState(initial = "")
     val savedColor = store.getColorName.collectAsState(initial = "")
     val savedFontSize = store.getFontSize.collectAsState(initial = "")
+
+    val products = remember { mutableStateListOf<Product2>() }
+
+    val database = Firebase.database(url = "https://shoppinglist-7fc7a-default-rtdb.europe-west1.firebasedatabase.app/")
+    val myRef = database.getReference("products")
+
+    myRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onCancelled(snapshotError: DatabaseError) {
+            Toast.makeText(
+                context,
+                "Getting data wasn't successful",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        override fun onDataChange(snapshot: DataSnapshot) {
+            products.clear()
+            val children = snapshot!!.children
+            children.forEach {
+                it.getValue(Product2::class.java)?.let {
+                        it1 -> products.add(it1)
+                }
+            }
+        }
+    })
 
     Column {
         Box(
@@ -90,11 +121,11 @@ fun ListsScreen(viewModel: ProductViewModel) {
                         .padding(8.dp)
                 ) {
                     Checkbox(
-                        checked = checkBoxState,
+                        checked = checkBoxState ?: false,
                         onCheckedChange = {
                             checkBoxState = it
                             product.status = it
-                            viewModel.updateProduct(product)
+                            myRef.child(product.id.toString()).child("status").setValue(checkBoxState)
                         },
                         colors = CheckboxDefaults.colors(
                             checkedColor = buttonColor(savedColor.value)
@@ -102,7 +133,7 @@ fun ListsScreen(viewModel: ProductViewModel) {
                     )
                     Column {
                         Text(
-                            text = product.name,
+                            text = product.name ?: "",
                             fontSize = textFontSize(savedFontSize.value).sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -142,7 +173,8 @@ fun ListsScreen(viewModel: ProductViewModel) {
                     }
                     IconButton(
                         onClick = {
-                            viewModel.deleteProduct(product)
+                            myRef.child(product.id.toString()).removeValue()
+                            products.remove(product)
                         },
                     ) {
                         Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete")
