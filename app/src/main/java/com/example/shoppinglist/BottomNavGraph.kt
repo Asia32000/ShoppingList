@@ -33,7 +33,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
 @Composable
-fun BottomNavGraph(navController: NavHostController, viewModel: ProductViewModel, app: Application) {
+fun BottomNavGraph(navController: NavHostController, viewModel: ProductViewModel, shopsViewModel: ShopViewModel, app: Application) {
     NavHost(
         navController = navController,
         startDestination = BottomBarScreen.Lists.route
@@ -42,7 +42,7 @@ fun BottomNavGraph(navController: NavHostController, viewModel: ProductViewModel
             ListsScreen(viewModel, app)
         }
         composable(route = BottomBarScreen.Shops.route) {
-            ShopsScreen()
+            ShopsScreen(shopsViewModel)
         }
         composable(route = BottomBarScreen.Settings.route) {
             SettingsScreen()
