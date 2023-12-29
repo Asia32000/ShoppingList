@@ -10,6 +10,6 @@ data class Shop(
     var name: String,
     var description: String?,
     var radius: String,
-    var latitude: Float,
-    var longitude: Float
+    var latitude: String?,
+    var longitude: String?
 )

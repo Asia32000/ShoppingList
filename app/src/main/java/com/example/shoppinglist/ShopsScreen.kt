@@ -127,7 +127,7 @@ fun ShopsScreen(viewModel: ShopViewModel) {
                             .fillMaxHeight())
                     IconButton(
                         onClick = {
-                            val intent = Intent(context, EditProductActivity::class.java)
+                            val intent = Intent(context, EditShopActivity::class.java)
                             intent.apply { putExtra("name", shop.name) }
                             intent.apply { putExtra("description", shop.description) }
                             intent.apply { putExtra("id", shop.id) }

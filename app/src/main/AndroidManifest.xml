@@ -28,6 +28,11 @@
             android:label="@string/app_name"
             android:theme="@style/Theme.ShoppingList"></activity>
         <activity
+            android:name=".EditShopActivity"
+            android:exported="true"
+            android:label="EditShopActivity"
+            android:theme="@style/Theme.ShoppingList"></activity>
+        <activity
             android:name=".LoginActivity"
             android:exported="true"
             android:label="LoginActivity"

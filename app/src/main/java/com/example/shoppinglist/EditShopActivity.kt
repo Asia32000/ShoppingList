@@ -1,5 +1,6 @@
 package com.example.shoppinglist
 
+import UserStore
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,26 +21,38 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shoppinglist.ui.theme.ShoppingListTheme
 
-class AddShopActivity : ComponentActivity() {
+class EditShopActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ShoppingListTheme {
                 val viewModel = ShopViewModel(application)
+                val name = intent.getStringExtra("name")
+                val description = intent.getStringExtra("description")
+                val id = intent.getIntExtra("id", -1)
+                val radius = intent.getStringExtra("radius")
+                val latitude = intent.getStringExtra("latitude")
+                val longitude = intent.getStringExtra("longitude")
+                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    AddShopScreen(viewModel, goToPreviousActivity = { finish() })
+                    if (name != null && id != null && radius != null) {
+                        println("name: $name, id: $id, radius: $radius")
+                        EditShopScreen(viewModel, goToPreviousActivity = { finish() }, name = name, description, id, radius, latitude, longitude)
+                    }
                 }
             }
         }
@@ -48,10 +61,15 @@ class AddShopActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit) {
-    var nameText by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var radius by remember { mutableStateOf("") }
+fun EditShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit, name: String, description: String?, id: Int, radius: String, latitude: String?, longitude: String?) {
+    var nameText by remember { mutableStateOf(name) }
+    var description by remember { mutableStateOf(description) }
+    var radius by remember { mutableStateOf(radius) }
+    val shops by viewModel.shops.collectAsState(emptyList())
+    val context = LocalContext.current
+    val store = UserStore(context)
+    val savedColor = store.getColorName.collectAsState(initial = "")
+    val savedFontSize = store.getFontSize.collectAsState(initial = "")
 
     Column(
         modifier = Modifier
@@ -63,7 +81,7 @@ fun AddShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit) {
                 .padding(16.dp, top = 30.dp),
             text = "Name",
             color = Color.Gray,
-            fontSize = 14.sp
+            fontSize = infoTextFontSize(savedFontSize.value).sp
         )
         OutlinedTextField(
             modifier = Modifier
@@ -80,20 +98,19 @@ fun AddShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit) {
                             nameText = ""
                         }
                 )
-            }
-        )
+            })
         Text(
             modifier = Modifier
                 .padding(16.dp, top = 30.dp),
             text = "Description",
             color = Color.Gray,
-            fontSize = 14.sp
+            fontSize = infoTextFontSize(savedFontSize.value).sp
         )
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start=16.dp, end=16.dp),
-            value = description,
+                .padding(start = 16.dp, end = 16.dp),
+            value = description ?: "",
             onValueChange = { description = it },
             trailingIcon = {
                 Icon(
@@ -105,18 +122,17 @@ fun AddShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit) {
                         }
                 )
             })
-
         Text(
             modifier = Modifier
                 .padding(16.dp, top = 30.dp),
             text = "Radius",
             color = Color.Gray,
-            fontSize = 14.sp
+            fontSize = infoTextFontSize(savedFontSize.value).sp
         )
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start=16.dp, end=16.dp),
+                .padding(start = 16.dp, end = 16.dp),
             value = radius,
             onValueChange = { radius = it },
             trailingIcon = {
@@ -128,31 +144,34 @@ fun AddShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit) {
                             radius = ""
                         }
                 )
-            }
-        )
+            })
 
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start=128.dp, end=128.dp),
+                .padding(start = 96.dp, end=96.dp),
             onClick = {
                 if (nameText.isNotEmpty() && radius.isNotEmpty()) {
-                    val shop = Shop(name = nameText, description = description, radius = radius, latitude = "", longitude = "")
-                    viewModel.insertShop(shop)
+                    val previousShop = shops.first { it.id == id }
+                    viewModel.deleteShop(previousShop)
+
+                    val newShop = Shop(id = id, name = nameText, description = description, radius = radius, latitude = latitude, longitude = longitude)
+                    viewModel.insertShop(newShop)
+
                     goToPreviousActivity()
                 }
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = (if (nameText.isNotEmpty() && radius.isNotEmpty()) Color.Blue.copy(alpha = 0.3f) else Color.Gray.copy(alpha = 0.3f)),
+                containerColor = (if (nameText.isNotEmpty() && radius.isNotEmpty()) buttonColor(savedColor.value) else Color.Gray.copy(alpha = 0.3f)),
                 contentColor = Color.Black
             )
         )
         {
             Text(
-                text = "Add Shop",
-                fontSize = 16.sp
+                text = "Save Changes",
+                fontSize = buttonFontSize(savedFontSize.value).sp
             )
         }
     }
