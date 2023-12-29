@@ -41,6 +41,9 @@ fun BottomNavGraph(navController: NavHostController, viewModel: ProductViewModel
         composable(route = BottomBarScreen.Lists.route) {
             ListsScreen(viewModel, app)
         }
+        composable(route = BottomBarScreen.Shops.route) {
+            ShopsScreen()
+        }
         composable(route = BottomBarScreen.Settings.route) {
             SettingsScreen()
         }

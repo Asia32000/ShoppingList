@@ -5,6 +5,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class BottomBarScreen(
@@ -22,5 +23,11 @@ sealed class BottomBarScreen(
         route = "settings",
         title = "Settings",
         icon = Icons.Default.Settings
+    )
+
+    object Shops : BottomBarScreen(
+        route = "shops",
+        title = "Shops",
+        icon = Icons.Default.ShoppingCart
     )
 }
