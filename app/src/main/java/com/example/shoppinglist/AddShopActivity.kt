@@ -2,6 +2,9 @@ package com.example.shoppinglist
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -35,9 +38,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.shoppinglist.ui.theme.ShoppingListTheme
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -45,10 +52,12 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
+import kotlin.random.Random
 
 class AddShopActivity : ComponentActivity() {
     private val mapViewModel: MapViewModel by viewModels()
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    lateinit var geofencingClient: GeofencingClient
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -66,6 +75,7 @@ class AddShopActivity : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        geofencingClient = LocationServices.getGeofencingClient(this)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (ContextCompat.checkSelfPermission(
@@ -93,7 +103,7 @@ class AddShopActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    AddShopScreen(viewModel, mapViewModel, goToPreviousActivity = { finish() })
+                    AddShopScreen(viewModel, mapViewModel, geofencingClient, this, goToPreviousActivity = { finish() })
                 }
             }
         }
@@ -102,10 +112,11 @@ class AddShopActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddShopScreen(viewModel: ShopViewModel, mapViewModel: MapViewModel, goToPreviousActivity: () -> Unit) {
+fun AddShopScreen(viewModel: ShopViewModel, mapViewModel: MapViewModel, geoClient:GeofencingClient, context: Context, goToPreviousActivity: () -> Unit) {
     var nameText by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var radius by remember { mutableStateOf("") }
+    var geofenceList = mutableListOf<Geofence>()
 
     Column(
         modifier = Modifier
@@ -197,8 +208,47 @@ fun AddShopScreen(viewModel: ShopViewModel, mapViewModel: MapViewModel, goToPrev
                     if (location != null) {
                         val shop = Shop(name = nameText, description = description, radius = radius, latitude = location.latitude, longitude = location.longitude)
                         viewModel.insertShop(shop)
+
+                        geofenceList.add(
+                            Geofence.Builder()
+                            .setRequestId((0..100000).random().toString())
+                            .setCircularRegion(
+                                location.latitude,
+                                location.longitude,
+                                radius.toFloat()
+                            )
+                            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+                            .build())
+
+                        val geofencePendingIntent: PendingIntent by lazy {
+                            val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
+                            PendingIntent.getBroadcast(
+                                context,
+                                0,
+                                intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                            )
+                        }
+
+                        if (ActivityCompat.checkSelfPermission(
+                                context,
+                                ACCESS_FINE_LOCATION
+                            ) == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            geoClient.addGeofences(
+                                GeofencingRequest.Builder().apply {
+                                    setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                                    addGeofences(geofenceList)
+                                }.build(),
+                                geofencePendingIntent).run {
+                                    addOnSuccessListener {
+                                        println("*** we made it")
+                                    }
+                            }
+                        }
+
                         goToPreviousActivity()
-                    } else {
                     }
                 }
             },
