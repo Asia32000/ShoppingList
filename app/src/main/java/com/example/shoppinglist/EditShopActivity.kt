@@ -1,6 +1,8 @@
 package com.example.shoppinglist
 
 import UserStore
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shoppinglist.ui.theme.ShoppingListTheme
 
+
 class EditShopActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,8 +46,8 @@ class EditShopActivity : ComponentActivity() {
                 val description = intent.getStringExtra("description")
                 val id = intent.getIntExtra("id", -1)
                 val radius = intent.getStringExtra("radius")
-                val latitude = intent.getStringExtra("latitude")
-                val longitude = intent.getStringExtra("longitude")
+                val latitude = intent.getDoubleExtra("latitude", 0.0)
+                val longitude = intent.getDoubleExtra("longitude", 0.0)
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize()
@@ -61,7 +64,7 @@ class EditShopActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit, name: String, description: String?, id: Int, radius: String, latitude: String?, longitude: String?) {
+fun EditShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit, name: String, description: String?, id: Int, radius: String, latitude: Double, longitude: Double) {
     var nameText by remember { mutableStateOf(name) }
     var description by remember { mutableStateOf(description) }
     var radius by remember { mutableStateOf(radius) }
@@ -151,13 +154,13 @@ fun EditShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit, n
         Button(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 96.dp, end=96.dp),
+                .padding(start = 96.dp, end = 96.dp),
             onClick = {
                 if (nameText.isNotEmpty() && radius.isNotEmpty()) {
                     val previousShop = shops.first { it.id == id }
                     viewModel.deleteShop(previousShop)
 
-                    val newShop = Shop(id = id, name = nameText, description = description, radius = radius, latitude = latitude, longitude = longitude)
+                    val newShop = Shop(id = id, name = nameText, description = description, radius = radius, latitude, longitude)
                     viewModel.insertShop(newShop)
 
                     goToPreviousActivity()

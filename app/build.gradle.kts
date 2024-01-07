@@ -3,6 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -87,4 +89,11 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.4.0-alpha10")
 
     implementation("androidx.datastore:datastore-preferences-android:1.1.0-alpha06")
+
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.maps.android:maps-compose:2.8.0")
+    implementation("com.google.dagger:hilt-android:2.42")
+    ksp("com.google.dagger:hilt-compiler:2.42")
+
 }

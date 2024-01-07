@@ -1,5 +1,6 @@
 package com.example.shoppinglist
 
+import android.location.Location
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -10,6 +11,6 @@ data class Shop(
     var name: String,
     var description: String?,
     var radius: String,
-    var latitude: String?,
-    var longitude: String?
+    var latitude: Double,
+    var longitude: Double
 )

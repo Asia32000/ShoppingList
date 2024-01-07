@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.math.RoundingMode
 
 @Composable
 fun ShopsScreen(viewModel: ShopViewModel) {
@@ -91,7 +93,7 @@ fun ShopsScreen(viewModel: ShopViewModel) {
                 ) {
                     Column {
                         Text(
-                            text = shop.name ?: "",
+                            text = shop.name.uppercase() ?: "",
                             fontSize = textFontSize(savedFontSize.value).sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -101,25 +103,21 @@ fun ShopsScreen(viewModel: ShopViewModel) {
                             color = Color.Gray
                         )
 
-                        Row {
                             Text(
                             text = "Radius: ${shop.radius}",
                             fontSize = detailsFontSize(savedFontSize.value).sp,
                             color = Color.Gray
                             )
-                            Spacer(modifier = Modifier.requiredWidth(16.dp))
                             Text(
                                 text = "Latitude: ${shop.latitude}",
                                 fontSize = detailsFontSize(savedFontSize.value).sp,
                                 color = Color.Gray
                             )
-                            Spacer(modifier = Modifier.requiredWidth(16.dp))
                             Text(
                                 text = "Longitude: ${shop.longitude}",
                                 fontSize = detailsFontSize(savedFontSize.value).sp,
                                 color = Color.Gray
                             )
-                        }
                     }
                     Spacer(
                         Modifier
@@ -132,8 +130,8 @@ fun ShopsScreen(viewModel: ShopViewModel) {
                             intent.apply { putExtra("description", shop.description) }
                             intent.apply { putExtra("id", shop.id) }
                             intent.apply { putExtra("radius", shop.radius) }
-                            intent.apply { putExtra("longitude", shop.longitude) }
                             intent.apply { putExtra("latitude", shop.latitude) }
+                            intent.apply { putExtra("longitude", shop.longitude) }
                             context.startActivity(intent)
                         }
                     ) {

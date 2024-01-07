@@ -1,8 +1,15 @@
 package com.example.shoppinglist
 
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -28,18 +35,65 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.example.shoppinglist.ui.theme.ShoppingListTheme
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
 
 class AddShopActivity : ComponentActivity() {
+    private val mapViewModel: MapViewModel by viewModels()
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+    private val locationPermissionRequest = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions.getOrDefault(ACCESS_FINE_LOCATION, false) -> {
+                // Precise location access granted.
+            }
+            permissions.getOrDefault(ACCESS_COARSE_LOCATION, false) -> {
+                // Only approximate location access granted.
+            } else -> {
+            // No location access granted.
+        }
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+        if (ContextCompat.checkSelfPermission(
+            this,
+            ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED) {
+                    fusedLocationProviderClient.lastLocation
+                        .addOnSuccessListener {
+                            mapViewModel.userLocation = it
+                        }
+        } else {
+            locationPermissionRequest.launch(arrayOf(
+                ACCESS_FINE_LOCATION,
+                ACCESS_COARSE_LOCATION))
+        }
+
+
         setContent {
             ShoppingListTheme {
                 val viewModel = ShopViewModel(application)
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    AddShopScreen(viewModel, goToPreviousActivity = { finish() })
+                    AddShopScreen(viewModel, mapViewModel, goToPreviousActivity = { finish() })
                 }
             }
         }
@@ -48,7 +102,7 @@ class AddShopActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit) {
+fun AddShopScreen(viewModel: ShopViewModel, mapViewModel: MapViewModel, goToPreviousActivity: () -> Unit) {
     var nameText by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var radius by remember { mutableStateOf("") }
@@ -92,7 +146,7 @@ fun AddShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit) {
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start=16.dp, end=16.dp),
+                .padding(start = 16.dp, end = 16.dp),
             value = description,
             onValueChange = { description = it },
             trailingIcon = {
@@ -116,7 +170,7 @@ fun AddShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit) {
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start=16.dp, end=16.dp),
+                .padding(start = 16.dp, end = 16.dp),
             value = radius,
             onValueChange = { radius = it },
             trailingIcon = {
@@ -136,12 +190,16 @@ fun AddShopScreen(viewModel: ShopViewModel, goToPreviousActivity: () -> Unit) {
         Button(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start=128.dp, end=128.dp),
+                .padding(start = 128.dp, end = 128.dp),
             onClick = {
                 if (nameText.isNotEmpty() && radius.isNotEmpty()) {
-                    val shop = Shop(name = nameText, description = description, radius = radius, latitude = "", longitude = "")
-                    viewModel.insertShop(shop)
-                    goToPreviousActivity()
+                    val location = mapViewModel.userLocation
+                    if (location != null) {
+                        val shop = Shop(name = nameText, description = description, radius = radius, latitude = location.latitude, longitude = location.longitude)
+                        viewModel.insertShop(shop)
+                        goToPreviousActivity()
+                    } else {
+                    }
                 }
             },
             colors = ButtonDefaults.buttonColors(
