@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,8 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,10 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,7 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.math.RoundingMode
+
 
 @Composable
 fun ShopsScreen(viewModel: ShopViewModel) {
@@ -55,6 +48,50 @@ fun ShopsScreen(viewModel: ShopViewModel) {
         Box(
             modifier = Modifier.fillMaxWidth()
         ) {
+            IconButton(
+                onClick = {
+                    var latitudes = arrayOf<Double>()
+                    var longitudes = arrayOf<Double>()
+                    var names = arrayOf<String>()
+                    shops.forEach {
+                        latitudes += it.latitude
+                        longitudes += it.longitude
+                        names += it.name
+                    }
+                    val intent = Intent(context, MapActivity::class.java)
+
+                    intent.apply { putExtra("count", latitudes.count()) }
+
+                    latitudes.forEachIndexed { index, d ->
+                        var value = index + 1
+                        intent.apply { putExtra("latitude $value", d) }
+                    }
+
+                    longitudes.forEachIndexed { index, d ->
+                        var value = index + 1
+                        intent.apply { putExtra("longitude $value", d) }
+                    }
+
+                    names.forEachIndexed { index, d ->
+                        var value = index + 1
+                        intent.apply { putExtra("name $value", d) }
+                    }
+
+                    context.startActivity(intent)
+                },
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(CircleShape)
+                        .background(color = buttonColor(savedColor.value)),
+                    imageVector = Icons.Default.Home,
+                    contentDescription = "Add"
+                )
+            }
             Text(
                 text = "Shops List",
                 modifier = Modifier

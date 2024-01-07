@@ -23,13 +23,15 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyD83lJfT8a4JJklrlLlxfz_mqkdBoKsXmY"/>
-<!--        <service-->
-<!--            android:name="MyNavigationService"-->
-<!--            android:foregroundServiceType="location"/>-->
         <activity
             android:name=".AddShopActivity"
             android:exported="false"
             android:label="AddShopActivity"
+            android:theme="@style/Theme.ShoppingList" />
+        <activity
+            android:name=".MapActivity"
+            android:exported="true"
+            android:label="MapActivity"
             android:theme="@style/Theme.ShoppingList" />
         <activity
             android:name=".MainActivity"
